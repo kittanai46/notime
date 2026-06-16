@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notime — Notification Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .cards-row { grid-template-columns: 1fr; }
+      header { padding: 12px 16px; }
+      main { padding: 20px 12px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .card-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .card-value.accent { color: var(--accent); }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .ws-info {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .ws-info h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .ws-url-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .ws-url {
+      flex: 1;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      color: var(--accent-hover);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .ws-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .compose-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .compose-card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 14px;
+      transition: border-color 0.2s;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .send-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    .send-btn:hover { background: var(--accent-hover); }
+    .send-btn:active { transform: scale(0.98); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 100;
+      max-width: 320px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success { background: #15803d; color: #fff; }
+    .toast.error { background: #991b1b; color: #fff; }
+
+    .history-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .history-card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .history-count {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 32px;
+      font-size: 14px;
+    }
+
+    .history-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .notif-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--surface2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .notif-info { flex: 1; min-width: 0; }
+
+    .notif-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .notif-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .notif-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .notif-sent {
+      display: inline-block;
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔔</div>
+    Notime
+  </div>
+  <div class="status-badge">
+    <div class="dot"></div>
+    Server Online
+  </div>
+</header>
+
+<main>
+  <!-- Stats row -->
+  <div class="cards-row">
+    <div class="card">
+      <div class="card-label">Devices Connected</div>
+      <div class="card-value accent" id="deviceCount">0</div>
+      <div class="card-sub">Mobile apps listening</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Notifications Sent</div>
+      <div class="card-value" id="totalSent">0</div>
+      <div class="card-sub">This session</div>
+    </div>
+  </div>
+
+  <!-- WebSocket URL -->
+  <div class="ws-info">
+    <h3>Mobile Connection URL</h3>
+    <div class="ws-url-box">
+      <span class="ws-url" id="wsUrl">Loading...</span>
+      <button class="copy-btn" onclick="copyWsUrl()">Copy</button>
+    </div>
+    <p class="ws-hint">
+      Copy this URL and paste it into your Flutter app to connect the phone to this server.<br>
+      Your phone must be on the same Wi-Fi network as this computer.
+    </p>
+  </div>
+
+  <!-- Compose notification -->
+  <div class="compose-card">
+    <h2>Send Notification</h2>
+
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" placeholder="e.g. Meeting Reminder" maxlength="100" />
+    </div>
+
+    <div class="form-group">
+      <label for="body">Message</label>
+      <textarea id="body" placeholder="e.g. Daily standup starts in 5 minutes" maxlength="300"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="imageUrl">Image URL <span style="font-weight:400; color:#475569">(optional)</span></label>
+      <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" />
+    </div>
+
+    <button class="send-btn" id="sendBtn" onclick="sendNotification()">
+      Send Notification
+    </button>
+  </div>
+
+  <!-- History -->
+  <div class="history-card">
+    <h2>
+      History
+      <span class="history-count" id="historyCount">0 sent</span>
+    </h2>
+    <div id="historyList">
+      <div class="history-empty">No notifications sent yet</div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let totalSent = 0;
+  let history = [];
+
+  async function loadInfo() {
+    try {
+      const res = await fetch('/info');
+      const data = await res.json();
+      document.getElementById('wsUrl').textContent = data.wsUrl;
+      document.getElementById('deviceCount').textContent = data.connectedDevices;
+    } catch (e) {}
+  }
+
+  async function loadDevices() {
+    try {
+      const res = await fetch('/devices');
+      const data = await res.json();
+      document.getElementById('deviceCount').textContent = data.count;
+    } catch (e) {}
+  }
+
+  async function sendNotification() {
+    const title = document.getElementById('title').value.trim();
+    const body = document.getElementById('body').value.trim();
+    const imageUrl = document.getElementById('imageUrl').value.trim();
+
+    if (!title || !body) {
+      showToast('Please fill in Title and Message', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      const res = await fetch('/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body, imageUrl: imageUrl || null }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast(`Sent to ${data.sent} device${data.sent !== 1 ? 's' : ''}`, 'success');
+        totalSent += data.sent;
+        document.getElementById('totalSent').textContent = totalSent;
+
+        history.unshift({ title, body, imageUrl: imageUrl || null, sent: data.sent, time: new Date() });
+        renderHistory();
+
+        // Clear form
+        document.getElementById('title').value = '';
+        document.getElementById('body').value = '';
+        document.getElementById('imageUrl').value = '';
+      } else {
+        showToast(data.message || 'Failed to send', 'error');
+      }
+    } catch (e) {
+      showToast('Network error — is the server running?', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send Notification';
+    }
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    document.getElementById('historyCount').textContent = `${history.length} sent`;
+
+    if (history.length === 0) {
+      list.innerHTML = '<div class="history-empty">No notifications sent yet</div>';
+      return;
+    }
+
+    list.innerHTML = history.slice(0, 20).map(n => `
+      <div class="history-item">
+        <div class="notif-icon">🔔</div>
+        <div class="notif-info">
+          <div class="notif-title">${escHtml(n.title)}</div>
+          <div class="notif-body">${escHtml(n.body)}</div>
+        </div>
+        <div class="notif-meta">
+          ${formatTime(n.time)}
+          <br>
+          <span class="notif-sent">${n.sent} device${n.sent !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function formatTime(date) {
+    return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function copyWsUrl() {
+    const url = document.getElementById('wsUrl').textContent;
+    navigator.clipboard.writeText(url).then(() => showToast('URL copied to clipboard!', 'success'));
+  }
+
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => { toast.className = 'toast'; }, 3000);
+  }
+
+  // Poll for device count
+  loadInfo();
+  setInterval(loadDevices, 2000);
+
+  // Enter to send
+  document.getElementById('body').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) sendNotification();
+  });
+</script>
+</body>
+</html>
