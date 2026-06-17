@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
+const QRCode = require('qrcode');
 const os = require('os');
 const path = require('path');
 
@@ -45,6 +46,22 @@ wss.on('connection', (ws) => {
     console.error('WebSocket error:', err.message);
     mobileClients.delete(ws);
   });
+});
+
+// API: QR code SVG for the WebSocket URL
+app.get('/qr', async (req, res) => {
+  try {
+    const svg = await QRCode.toString(`ws://${localIP}:${PORT}`, {
+      type: 'svg',
+      margin: 2,
+      color: { dark: '#6366F1', light: '#1A1D27' },
+      width: 220,
+    });
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svg);
+  } catch (err) {
+    res.status(500).json({ error: 'QR generation failed' });
+  }
 });
 
 // API: Server info (IP, port, ws URL)
