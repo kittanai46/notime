@@ -246,6 +246,14 @@ ws://192.168.1.x:3000
 
 ---
 
+- cd notification_server 
+- node server.js 
+- คำสั่งเปืด
+- lsof -ti :3000 | xargs kill
+- คำสั่งปิดเซิร์ฟเวอร์
+
+---
+
 # ⚙️ Features
 
 ### Website Dashboard
