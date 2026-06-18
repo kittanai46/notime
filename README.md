@@ -66,8 +66,8 @@
 
 ---
 
-<div align="center">
 # 🌐 Website Preview
+<div align="center">
 <img src="assets/WebsitePreview .png" alt="Website Preview" width="720"/>
 
 ---
