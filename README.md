@@ -60,13 +60,10 @@
 
 ---
 
-# 📱 Application Preview
+# ตัวอย่างของ แอปพลิเคชันและเว็บไซต์
 <div align="center">
 <img src="assets/ApplicationPreview.png" alt="Application Preview" width="720"/>
-
 ---
-
-# 🌐 Website Preview
 <div align="center">
 <img src="assets/WebsitePreview .png" alt="Website Preview" width="720"/>
 
