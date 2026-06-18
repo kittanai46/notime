@@ -445,52 +445,161 @@ class _NotifCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final time =
         '${item.timestamp.hour.toString().padLeft(2, '0')}:${item.timestamp.minute.toString().padLeft(2, '0')}';
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1D27),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2E3350)),
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => NotificationDetailScreen(item: item)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF22263A),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.notifications, color: Color(0xFF6366F1), size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1D27),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF2E3350)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (item.imageUrl != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  item.imageUrl!,
+                  width: double.infinity,
+                  height: 160,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22263A),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.notifications, color: Color(0xFF6366F1), size: 20),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.body,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.body,
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    time,
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            time,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Notification Detail Screen ───────────────────────────────────────────────
+
+class NotificationDetailScreen extends StatelessWidget {
+  final NotificationItem item;
+
+  const NotificationDetailScreen({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final ts = item.timestamp;
+    final date =
+        '${ts.day}/${ts.month}/${ts.year}  ${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F1117),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1A1D27),
+        title: const Text('Detail'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (item.imageUrl != null)
+              Image.network(
+                item.imageUrl!,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                loadingBuilder: (_, child, progress) {
+                  if (progress == null) return child;
+                  return Container(
+                    height: 220,
+                    color: const Color(0xFF1A1D27),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+                    ),
+                  );
+                },
+              ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    date,
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(color: Color(0xFF2E3350)),
+                  const SizedBox(height: 16),
+                  Text(
+                    item.body,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFFCBD5E1),
+                      height: 1.7,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

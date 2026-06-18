@@ -36,6 +36,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   provider: ^6.1.2
   mobile_scanner: ^6.0.0
+  http: ^1.2.0
+  path_provider: ^2.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class NotificationItem {
@@ -117,20 +120,76 @@ class NotificationService extends ChangeNotifier {
   }
 
   Future<void> _showNotification(NotificationItem item) async {
-    const android = AndroidNotificationDetails(
-      'notime_ch',
-      'Notime',
-      channelDescription: 'Notifications from Notime dashboard',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const ios = DarwinNotificationDetails();
+    AndroidNotificationDetails android;
+    DarwinNotificationDetails ios;
+
+    if (item.imageUrl != null) {
+      try {
+        final file = await _downloadImage(item.imageUrl!);
+        final bigPicture = BigPictureStyleInformation(
+          FilePathAndroidBitmap(file.path),
+          largeIcon: FilePathAndroidBitmap(file.path),
+          hideExpandedLargeIcon: false,
+        );
+        android = AndroidNotificationDetails(
+          'notime_ch',
+          'Notime',
+          channelDescription: 'Notifications from Notime dashboard',
+          importance: Importance.max,
+          priority: Priority.high,
+          styleInformation: bigPicture,
+        );
+        ios = DarwinNotificationDetails(
+          attachments: [DarwinNotificationAttachment(file.path)],
+        );
+      } catch (e) {
+        debugPrint('Image download failed: $e');
+        android = const AndroidNotificationDetails(
+          'notime_ch',
+          'Notime',
+          channelDescription: 'Notifications from Notime dashboard',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
+        ios = const DarwinNotificationDetails();
+      }
+    } else {
+      android = const AndroidNotificationDetails(
+        'notime_ch',
+        'Notime',
+        channelDescription: 'Notifications from Notime dashboard',
+        importance: Importance.max,
+        priority: Priority.high,
+      );
+      ios = const DarwinNotificationDetails();
+    }
+
     await _localNotifs.show(
       item.id % 10000,
       item.title,
       item.body,
-      const NotificationDetails(android: android, iOS: ios),
+      NotificationDetails(android: android, iOS: ios),
     );
+  }
+
+  Future<File> _downloadImage(String url) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode != 200) {
+      throw Exception('Image fetch failed: HTTP ${response.statusCode}');
+    }
+    final contentType = response.headers['content-type'] ?? '';
+    final ext = _extFromContentType(contentType);
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/notif_${DateTime.now().millisecondsSinceEpoch}.$ext');
+    await file.writeAsBytes(response.bodyBytes);
+    return file;
+  }
+
+  String _extFromContentType(String ct) {
+    if (ct.contains('webp')) return 'webp';
+    if (ct.contains('png')) return 'png';
+    if (ct.contains('gif')) return 'gif';
+    return 'jpg';
   }
 
   void _onDisconnected() {
